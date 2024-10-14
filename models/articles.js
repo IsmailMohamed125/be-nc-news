@@ -8,7 +8,8 @@ function selectArticles() {
           FROM articles
           JOIN comments
           on articles.article_id = comments.article_id 
-          GROUP BY articles.article_id`
+          GROUP BY articles.article_id
+          ORDER BY articles.created_at DESC`
     )
     .then((data) => {
       return data.rows;
