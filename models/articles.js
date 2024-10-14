@@ -37,7 +37,8 @@ function selectComments(article_id) {
       FROM comments
       JOIN articles
       on articles.article_id = comments.article_id
-      WHERE articles.article_id = $1`,
+      WHERE articles.article_id = $1
+      ORDER BY comments.created_at DESC`,
       [article_id]
     )
     .then((data) => {
