@@ -30,4 +30,20 @@ function selectArticle(article_id) {
     });
 }
 
-module.exports = { selectArticles, selectArticle };
+function selectComments(article_id) {
+  return db
+    .query(
+      `SELECT comment_id, comments.author, comments.article_id, comments.created_at, comments.votes, comments.body 
+      FROM comments
+      JOIN articles
+      on articles.article_id = comments.article_id
+      WHERE articles.article_id = $1`,
+      [article_id]
+    )
+    .then((data) => {
+      return data.rows;
+    })
+    .catch((err) => console.log(err));
+}
+
+module.exports = { selectArticles, selectArticle, selectComments };
