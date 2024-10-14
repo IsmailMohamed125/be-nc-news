@@ -157,4 +157,28 @@ describe("Articles Endpoint", () => {
         });
     });
   });
+  describe("GET:/api/articles/:article_id/comments", () => {
+    test("GET:200 - Responds with an array containing correctly formated comment objects", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body.comments;
+          console.log(comments);
+          expect(comments.length).not.toBe(0);
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+              })
+            );
+          });
+        });
+    });
+  });
 });
