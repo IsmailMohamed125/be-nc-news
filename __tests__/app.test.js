@@ -180,5 +180,16 @@ describe("Articles Endpoint", () => {
           });
         });
     });
+    test("GET:200 - Responds with an array containing comment objects sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body.comments;
+          expect(comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
   });
 });
