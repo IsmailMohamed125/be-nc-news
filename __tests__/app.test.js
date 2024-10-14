@@ -103,5 +103,13 @@ describe("Articles Endpoint", () => {
           );
         });
     });
+    test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .get("/api/articles/999999999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article with id 999999999 not found");
+        });
+    });
   });
 });
