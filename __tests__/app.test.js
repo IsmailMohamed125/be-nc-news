@@ -199,5 +199,13 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Article with id 999999999 not found");
         });
     });
+    test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+      return request(app)
+        .get("/api/articles/notAnId/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request: Invalid category type");
+        });
+    });
   });
 });
