@@ -79,3 +79,45 @@ describe("Topics Endpoint", () => {
     });
   });
 });
+
+describe("Articles Endpoint", () => {
+  describe("GET:/api/articles/:article_id", () => {
+    test("GET:200 - Responds with an array containing correctly formated article object", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article[0];
+
+          expect(article).toEqual(
+            expect.objectContaining({
+              article_id: 1,
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            })
+          );
+        });
+    });
+    test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .get("/api/articles/999999999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article with id 999999999 not found");
+        });
+    });
+    test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+      return request(app)
+        .get("/api/articles/notAnId")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request: Invalid category type");
+        });
+    });
+  });
+});

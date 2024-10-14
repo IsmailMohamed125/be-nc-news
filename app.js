@@ -1,14 +1,28 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/apiRoutes");
-const topicsRouter = require("./routes/topicsRoutes");
 
 app.use("/api", apiRouter);
-app.use("/api/topics", topicsRouter);
+
 app.all("/*", (req, res, next) => {
   res.status(404).send({ msg: "Route not found!" });
   next();
 });
+
+app.use((err, req, res, next) => {
+  if (err.code === "22P02") {
+    res.status(400).send({ msg: "Bad request: Invalid category type" });
+  }
+  next(err);
+});
+
+app.use((err, req, res, next) => {
+  if (err.status && err.msg) {
+    res.status(err.status).send({ msg: err.msg });
+  }
+  next(err);
+});
+
 app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Server Error!" });
 });
