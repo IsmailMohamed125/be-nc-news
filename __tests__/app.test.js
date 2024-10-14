@@ -106,6 +106,17 @@ describe("Articles Endpoint", () => {
           });
         });
     });
+    test("GET:200 - Responds with an array containing correctly formated article objects sorted by date in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const articles = body.articles;
+          expect(articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
   });
   describe("GET:/api/articles/:article_id", () => {
     test("GET:200 - Responds with an array containing correctly formated article object", () => {
