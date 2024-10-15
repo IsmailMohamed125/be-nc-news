@@ -68,12 +68,10 @@ describe("Topics Endpoint", () => {
           const topics = body.topics;
           expect(topics.length).not.toBe(0);
           topics.forEach((topic) => {
-            expect(topic).toEqual(
-              expect.objectContaining({
-                slug: expect.any(String),
-                description: expect.any(String),
-              })
-            );
+            expect(topic).toMatchObject({
+              slug: expect.any(String),
+              description: expect.any(String),
+            });
           });
         });
     });
@@ -91,18 +89,16 @@ describe("Articles Endpoint", () => {
 
           expect(articles.length).not.toBe(0);
           articles.forEach((article) => {
-            expect(article).toEqual(
-              expect.objectContaining({
-                article_id: expect.any(Number),
-                title: expect.any(String),
-                topic: expect.any(String),
-                author: expect.any(String),
-                created_at: expect.any(String),
-                votes: expect.any(Number),
-                article_img_url: expect.any(String),
-                comment_count: expect.any(Number),
-              })
-            );
+            expect(article).toMatchObject({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
+            });
           });
         });
     });
@@ -126,18 +122,16 @@ describe("Articles Endpoint", () => {
         .then(({ body }) => {
           const article = body.article[0];
 
-          expect(article).toEqual(
-            expect.objectContaining({
-              article_id: 1,
-              title: expect.any(String),
-              topic: expect.any(String),
-              author: expect.any(String),
-              body: expect.any(String),
-              created_at: expect.any(String),
-              votes: expect.any(Number),
-              article_img_url: expect.any(String),
-            })
-          );
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
         });
     });
     test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
@@ -167,16 +161,14 @@ describe("Articles Endpoint", () => {
           console.log(comments);
           expect(comments.length).not.toBe(0);
           comments.forEach((comment) => {
-            expect(comment).toEqual(
-              expect.objectContaining({
-                comment_id: expect.any(Number),
-                author: expect.any(String),
-                created_at: expect.any(String),
-                votes: expect.any(Number),
-                body: expect.any(String),
-                article_id: expect.any(Number),
-              })
-            );
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+            });
           });
         });
     });
@@ -189,6 +181,15 @@ describe("Articles Endpoint", () => {
           expect(comments).toBeSortedBy("created_at", {
             descending: true,
           });
+        });
+    });
+    test("GET:200 - Responds with an empty array when given a valid article id with no comments on article", () => {
+      return request(app)
+        .get("/api/articles/7/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const comments = body.comments;
+          expect(comments).toEqual([]);
         });
     });
     test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {

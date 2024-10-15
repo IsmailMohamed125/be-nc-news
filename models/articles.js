@@ -32,27 +32,15 @@ function selectArticle(article_id) {
 
 function selectComments(article_id) {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
-    .then((data) => {
-      console.log(data.rows);
-      if (data.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: `Article with id ${article_id} not found`,
-        });
-      }
-    })
-    .then(() => {
-      return db.query(
-        `SELECT comment_id, comments.author, comments.article_id, comments.created_at, comments.votes, comments.body 
+    .query(
+      `SELECT comment_id, comments.author, comments.article_id, comments.created_at, comments.votes, comments.body 
         FROM comments
         JOIN articles
         on articles.article_id = comments.article_id
         WHERE articles.article_id = $1
         ORDER BY comments.created_at DESC`,
-        [article_id]
-      );
-    })
+      [article_id]
+    )
     .then((data) => {
       return data.rows;
     });
