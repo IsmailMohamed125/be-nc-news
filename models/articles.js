@@ -67,7 +67,6 @@ function updateArticle(votes, article_id) {
       [votes, article_id]
     )
     .then((data) => {
-      console.log(data.rows);
       return data.rows;
     });
 }

@@ -65,9 +65,13 @@ const postCommentOnArticle = (req, res, next) => {
 const patchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-  updateArticle(inc_votes, article_id)
+  const promises = [
+    selectArticle(article_id),
+    updateArticle(inc_votes, article_id),
+  ];
+  Promise.all(promises)
     .then((article) => {
-      res.status(200).send({ article });
+      res.status(200).send({ article: article[1] });
     })
     .catch((err) => {
       next(err);
