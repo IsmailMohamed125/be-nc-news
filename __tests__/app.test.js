@@ -342,5 +342,13 @@ describe("Comments Endpoint", () => {
     test("DELETE:204 - Responds with no content", () => {
       return request(app).delete("/api/comments/1").expect(204);
     });
+    test("DELETE: 404 - Attempting to DELETE a resource that does not exist", () => {
+      return request(app)
+        .delete("/api/comments/999999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment with id 999999 not found");
+        });
+    });
   });
 });
