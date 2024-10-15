@@ -114,5 +114,10 @@
         }
       ]
     }
+  },
+  "DELETE: /api/comments/:comment_id": {
+    "description": "returns no content and deletes comment by comment idd",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
