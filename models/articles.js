@@ -60,9 +60,22 @@ function insertComment(newComment, article_id) {
   });
 }
 
+function updateArticle(votes, article_id) {
+  return db
+    .query(
+      `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,
+      [votes, article_id]
+    )
+    .then((data) => {
+      console.log(data.rows);
+      return data.rows;
+    });
+}
+
 module.exports = {
   selectArticles,
   selectArticle,
   selectComments,
   insertComment,
+  updateArticle,
 };

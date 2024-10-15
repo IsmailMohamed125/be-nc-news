@@ -3,6 +3,7 @@ const {
   selectArticle,
   selectComments,
   insertComment,
+  updateArticle,
 } = require("../models/articles");
 const { validationResult } = require("express-validator");
 
@@ -61,9 +62,22 @@ const postCommentOnArticle = (req, res, next) => {
     });
 };
 
+const patchArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+  updateArticle(inc_votes, article_id)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getAllArticles,
   getArticleById,
   getCommentsByArticle,
   postCommentOnArticle,
+  patchArticleById,
 };
