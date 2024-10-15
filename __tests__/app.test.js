@@ -276,4 +276,27 @@ describe("Articles Endpoint", () => {
         });
     });
   });
+  describe("PATCH:/api/articles/:article_id", () => {
+    test("PATCH:200 - Responds with an array containing correctly formated comment object", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article[0];
+
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: expect.any(String),
+            votes: 102,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+  });
 });
