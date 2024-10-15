@@ -147,7 +147,7 @@ describe("Articles Endpoint", () => {
         .get("/api/articles/notAnId")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Bad request: Invalid category type");
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
@@ -204,12 +204,12 @@ describe("Articles Endpoint", () => {
         .get("/api/articles/notAnId/comments")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Bad request: Invalid category type");
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
   describe("POST:/api/articles/:article_id/comments", () => {
-    test("GET:201 - Responds with an array containing correctly formated comment object", () => {
+    test("POST:201 - Responds with an array containing correctly formated comment object", () => {
       return request(app)
         .post("/api/articles/1/comments")
         .send({
@@ -228,6 +228,28 @@ describe("Articles Endpoint", () => {
             body: "This is a test comment",
             article_id: 1,
           });
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to POST request with a body that does not contain the correct fields", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of a field is invalid", () => {
+      // Comment for NC staff members: Since PSQL is doing type coercion even if i send a non-string this test will fail without the use of an external library. Also, the other way i could check is converting the string values i get from req.body to another type in an if statement like if(Number(usermame)) then reject there but I would have to check mutiple data types. Please suggest another way if you can but for now i will use a library called express-validator I will only use it for this case.
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: 9,
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
         });
     });
   });
