@@ -251,7 +251,7 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+    test("POST:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
       return request(app)
         .post("/api/articles/999999999/comments")
         .send({
@@ -263,7 +263,7 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Article with id 999999999 not found");
         });
     });
-    test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+    test("POST:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
       return request(app)
         .post("/api/articles/notAnId/comments")
         .send({
