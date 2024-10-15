@@ -55,13 +55,9 @@ function insertComment(newComment, article_id) {
     VALUES %L RETURNING *;`,
     formattedComment
   );
-  return db
-    .query(queryString)
-    .then((data) => {
-      console.log(data.rows);
-      return data.rows;
-    })
-    .catch((err) => console.log(err));
+  return db.query(queryString).then((data) => {
+    return data.rows;
+  });
 }
 
 module.exports = {
