@@ -336,3 +336,11 @@ describe("Articles Endpoint", () => {
     });
   });
 });
+
+describe("Comments Endpoint", () => {
+  describe("DELETE:/api/comments/:comment_id", () => {
+    test("DELETE:204 - Responds with no content", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+  });
+});
