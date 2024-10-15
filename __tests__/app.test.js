@@ -158,7 +158,6 @@ describe("Articles Endpoint", () => {
         .expect(200)
         .then(({ body }) => {
           const comments = body.comments;
-          console.log(comments);
           expect(comments.length).not.toBe(0);
           comments.forEach((comment) => {
             expect(comment).toMatchObject({
@@ -206,6 +205,29 @@ describe("Articles Endpoint", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request: Invalid category type");
+        });
+    });
+  });
+  describe("POST:/api/articles/:article_id/comments", () => {
+    test("GET:201 - Responds with an array containing correctly formated comment object", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: "This is a test comment",
+        })
+        .expect(201)
+        .then(({ body }) => {
+          const comment = body.comment[0];
+          console.log(comment);
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            author: "butter_bridge",
+            created_at: expect.any(String),
+            votes: 0,
+            body: "This is a test comment",
+            article_id: 1,
+          });
         });
     });
   });
