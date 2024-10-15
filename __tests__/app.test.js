@@ -219,7 +219,6 @@ describe("Articles Endpoint", () => {
         .expect(201)
         .then(({ body }) => {
           const comment = body.comment[0];
-          console.log(comment);
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             author: "butter_bridge",
@@ -246,6 +245,30 @@ describe("Articles Endpoint", () => {
         .send({
           username: "butter_bridge",
           body: 9,
+        })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("GET:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .post("/api/articles/999999999/comments")
+        .send({
+          username: "butter_bridge",
+          body: "This is a test comment",
+        })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article with id 999999999 not found");
+        });
+    });
+    test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+      return request(app)
+        .post("/api/articles/notAnId/comments")
+        .send({
+          username: "butter_bridge",
+          body: "This is a test comment",
         })
         .expect(400)
         .then(({ body }) => {
