@@ -362,7 +362,7 @@ describe("Comments Endpoint", () => {
 });
 
 describe("Users Endpoint", () => {
-  describe.only("GET:/api/users", () => {
+  describe("GET:/api/users", () => {
     test("GET:200 - Responds with an array containing correctly formated user objects", () => {
       return request(app)
         .get("/api/users")
