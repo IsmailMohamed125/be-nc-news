@@ -251,7 +251,7 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("POST:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+    test("POST:404 - Responds with an error when attempting to POST a resource by a valid ID that does not exist in the database", () => {
       return request(app)
         .post("/api/articles/999999999/comments")
         .send({
@@ -263,13 +263,72 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Article with id 999999999 not found");
         });
     });
-    test("POST:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+    test("POST:400 - Responds with an error when attempting to POST a resource by an invalid ID", () => {
       return request(app)
         .post("/api/articles/notAnId/comments")
         .send({
           username: "butter_bridge",
           body: "This is a test comment",
         })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("PATCH:/api/articles/:article_id", () => {
+    test("PATCH:200 - Responds with an array containing correctly formated comment object", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article[0];
+
+          expect(article).toMatchObject({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: expect.any(String),
+            votes: 102,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource with a body that does not contain the correct fields", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to make a POST request with valid fields but the value of a field is invalid", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "notAnINT" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:404 - Responds with an error when attempting to PATCH a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .patch("/api/articles/999999999")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article with id 999999999 not found");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource by an invalid ID", () => {
+      return request(app)
+        .patch("/api/articles/notAnId")
+        .send({ inc_votes: 2 })
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
