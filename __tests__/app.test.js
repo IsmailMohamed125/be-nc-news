@@ -298,5 +298,23 @@ describe("Articles Endpoint", () => {
           });
         });
     });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource with a body that does not contain the correct fields", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to make a POST request with valid fields but the value of a field is invalid", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "notAnINT" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
   });
 });
