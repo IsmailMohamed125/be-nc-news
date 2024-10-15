@@ -350,5 +350,13 @@ describe("Comments Endpoint", () => {
           expect(body.msg).toBe("Comment with id 999999 not found");
         });
     });
+    test("DELETE: 400 - Attempting to DELETE a resource referenced by an invalid ID", () => {
+      return request(app)
+        .delete("/api/comments/notAnId")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
   });
 });
