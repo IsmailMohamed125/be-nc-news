@@ -4,8 +4,8 @@ exports.routeErrorHandler = (req, res, next) => {
 };
 
 exports.psqlErrorHandler = (err, req, res, next) => {
-  if (err.code === "22P02") {
-    res.status(400).send({ msg: "Bad request: Invalid category type" });
+  if (err.code === "22P02" || err.code === "23502") {
+    res.status(400).send({ msg: "Bad request" });
   }
   next(err);
 };

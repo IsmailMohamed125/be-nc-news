@@ -8,6 +8,8 @@ const {
   serverErrorHandler,
 } = require("./controllers/error.controller");
 
+app.use(express.json());
+
 app.use("/api", apiRouter);
 
 app.all("/*", routeErrorHandler);

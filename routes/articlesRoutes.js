@@ -3,7 +3,9 @@ const {
   getAllArticles,
   getArticleById,
   getCommentsByArticle,
+  postCommentOnArticle,
 } = require("../controllers/articles.controller");
+const { validatePost } = require("../db/seeds/utils");
 
 const router = express.Router();
 
@@ -11,6 +13,9 @@ router.route("/").get(getAllArticles);
 
 router.route("/:article_id").get(getArticleById);
 
-router.route("/:article_id/comments").get(getCommentsByArticle);
+router
+  .route("/:article_id/comments")
+  .get(getCommentsByArticle)
+  .post(validatePost, postCommentOnArticle);
 
 module.exports = router;
