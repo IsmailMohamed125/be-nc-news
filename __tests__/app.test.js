@@ -251,7 +251,7 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Bad request");
         });
     });
-    test("POST:404 - Responds with an error when attempting to GET a resource by a valid ID that does not exist in the database", () => {
+    test("POST:404 - Responds with an error when attempting to POST a resource by a valid ID that does not exist in the database", () => {
       return request(app)
         .post("/api/articles/999999999/comments")
         .send({
@@ -263,7 +263,7 @@ describe("Articles Endpoint", () => {
           expect(body.msg).toBe("Article with id 999999999 not found");
         });
     });
-    test("POST:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
+    test("POST:400 - Responds with an error when attempting to POST a resource by an invalid ID", () => {
       return request(app)
         .post("/api/articles/notAnId/comments")
         .send({
@@ -311,6 +311,24 @@ describe("Articles Endpoint", () => {
       return request(app)
         .patch("/api/articles/1")
         .send({ inc_votes: "notAnINT" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:404 - Responds with an error when attempting to PATCH a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .patch("/api/articles/999999999")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Article with id 999999999 not found");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource by an invalid ID", () => {
+      return request(app)
+        .patch("/api/articles/notAnId")
+        .send({ inc_votes: 2 })
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad request");
