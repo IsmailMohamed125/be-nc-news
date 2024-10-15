@@ -27,9 +27,10 @@ const getArticleById = (req, res, next) => {
 
 const getCommentsByArticle = (req, res, next) => {
   const { article_id } = req.params;
-  selectComments(article_id)
+  const promises = [selectComments(article_id), selectArticle(article_id)];
+  Promise.all(promises)
     .then((comments) => {
-      res.status(200).send({ comments });
+      res.status(200).send({ comments: comments[0] });
     })
     .catch((err) => {
       next(err);
