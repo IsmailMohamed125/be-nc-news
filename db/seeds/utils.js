@@ -20,3 +20,8 @@ exports.formatComments = (comments, idLookup) => {
     };
   });
 };
+
+exports.prepareNewComment = (comment, id) => {
+  const { username, body } = comment;
+  return [[username, body, id]];
+};

@@ -1,4 +1,6 @@
 const db = require("../db/connection");
+const format = require("pg-format");
+const { prepareNewComment } = require("../db/seeds/utils");
 
 function selectArticles() {
   return db
@@ -46,4 +48,24 @@ function selectComments(article_id) {
     });
 }
 
-module.exports = { selectArticles, selectArticle, selectComments };
+function insertComment(newComment, article_id) {
+  const formattedComment = prepareNewComment(newComment, article_id);
+  const queryString = format(
+    `INSERT INTO comments (author, body, article_id)
+    VALUES %L RETURNING *;`,
+    formattedComment
+  );
+  return db
+    .query(queryString)
+    .then((data) => {
+      return data.rows;
+    })
+    .catch((err) => console.log(err));
+}
+
+module.exports = {
+  selectArticles,
+  selectArticle,
+  selectComments,
+  insertComment,
+};
