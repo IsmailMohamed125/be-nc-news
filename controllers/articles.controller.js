@@ -4,6 +4,7 @@ const {
   selectComments,
   insertComment,
 } = require("../models/articles");
+const { validationResult } = require("express-validator");
 
 const getAllArticles = (req, res, next) => {
   selectArticles()
@@ -39,6 +40,10 @@ const getCommentsByArticle = (req, res, next) => {
 };
 
 const postCommentOnArticle = (req, res, next) => {
+  const { errors } = validationResult(req);
+  if (errors.length !== 0) {
+    next({ status: 400, msg: errors[0].msg });
+  }
   const { article_id } = req.params;
   const newComment = req.body;
   insertComment(newComment, article_id)

@@ -58,6 +58,7 @@ function insertComment(newComment, article_id) {
   return db
     .query(queryString)
     .then((data) => {
+      console.log(data.rows);
       return data.rows;
     })
     .catch((err) => console.log(err));
