@@ -46,8 +46,8 @@ const postCommentOnArticle = (req, res, next) => {
   const newComment = req.body;
   const promises = [
     selectArticle(article_id),
-    selectUser(newComment.username),
     insertComment(newComment, article_id),
+    selectUser(newComment.username),
   ];
 
   Promise.all(promises)

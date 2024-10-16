@@ -2,7 +2,7 @@
 
 Link: https://ismails-news.onrender.com/api
 
-Summary: I've buitl a RESTful API to provide programmatic access to news-related application data. This project simulates the development of a real-world backend service, similar to platforms like Reddit, where users can access and interact with data through API endpoints. The API will allow clients (such as frontend applications) to retrieve and manipulate data such as articles, comments, users, and topics.
+Summary: I've built a RESTful API to provide programmatic access to news-related application data. This project simulates the development of a real-world backend service, similar to platforms like Reddit, where users can access and interact with data through API endpoints. The API will allow clients (such as frontend applications) to retrieve and manipulate data such as articles, comments, users, and topics.
 
 Instructions:
 Cloning - Navigate to the desired directory and use git clone https://github.com/IsmailMohamed125/be-nc-news.git

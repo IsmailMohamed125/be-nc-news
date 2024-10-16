@@ -315,7 +315,7 @@ describe("Articles Endpoint", () => {
           expect(msg).toBe("Bad request");
         });
     });
-    test.only("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of the username field is invalid", () => {
+    test("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of the username field is invalid", () => {
       return request(app)
         .post("/api/articles/1/comments")
         .send({
