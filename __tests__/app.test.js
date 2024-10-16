@@ -187,6 +187,14 @@ describe("Articles Endpoint", () => {
             });
           });
       });
+      test("GET:404 - Responds with an error when passed a topic not present in our database", () => {
+        return request(app)
+          .get("/api/articles?topic=bad_request")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Articles with topic bad_request not found");
+          });
+      });
     });
   });
   describe("GET:/api/articles/:article_id", () => {
