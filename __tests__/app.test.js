@@ -113,6 +113,21 @@ describe("Articles Endpoint", () => {
           });
         });
     });
+    describe.only("Sorting", () => {
+      describe("Sort by category", () => {
+        test("GET:200 - Responds with an array containing array objects sorted by the query parameter defaualting to DESC order", () => {
+          return request(app)
+            .get("/api/articles?sort_by=votes")
+            .expect(200)
+            .then(({ body }) => {
+              const articles = body.articles;
+              expect(articles).toBeSortedBy("votes", {
+                descending: true,
+              });
+            });
+        });
+      });
+    });
   });
   describe("GET:/api/articles/:article_id", () => {
     test("GET:200 - Responds with an array containing correctly formated article object", () => {
