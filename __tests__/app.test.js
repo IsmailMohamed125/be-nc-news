@@ -154,6 +154,15 @@ describe("Articles Endpoint", () => {
             });
         });
       });
+      test("GET:200 - Responds with an array containing array objects sorted by the query parameter in the order direction", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body.articles;
+            expect(articles).toBeSortedBy("votes");
+          });
+      });
     });
   });
   describe("GET:/api/articles/:article_id", () => {
