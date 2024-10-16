@@ -37,6 +37,12 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
   queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order.toUpperCase()};`;
 
   return db.query(queryString, queryVals).then((data) => {
+    if (data.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Articles with topic ${topic} not found`,
+      });
+    }
     return data.rows;
   });
 }
