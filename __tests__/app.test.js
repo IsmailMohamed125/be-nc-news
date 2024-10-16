@@ -113,7 +113,7 @@ describe("Articles Endpoint", () => {
           });
         });
     });
-    describe.only("Sorting", () => {
+    describe("Sorting", () => {
       describe("Sort by category", () => {
         test("GET:200 - Responds with an array containing array objects sorted by the query parameter defaualting to DESC order", () => {
           return request(app)
