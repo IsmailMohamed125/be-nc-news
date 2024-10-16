@@ -6,4 +6,12 @@ function selectUsers() {
   });
 }
 
-module.exports = { selectUsers };
+function selectUser(username) {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1`, [username])
+    .then(({ rows }) => {
+      return rows;
+    });
+}
+
+module.exports = { selectUsers, selectUser };
