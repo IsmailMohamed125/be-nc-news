@@ -192,7 +192,7 @@ describe("Articles Endpoint", () => {
           .get("/api/articles?topic=bad_request")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("Articles with topic bad_request not found");
+            expect(body.msg).toBe("Not found");
           });
       });
     });
@@ -214,6 +214,7 @@ describe("Articles Endpoint", () => {
             created_at: expect.any(String),
             votes: expect.any(Number),
             article_img_url: expect.any(String),
+            comment_count: 11, // From comments test data
           });
         });
     });
@@ -222,7 +223,7 @@ describe("Articles Endpoint", () => {
         .get("/api/articles/999999999")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article with id 999999999 not found");
+          expect(body.msg).toBe("Not found");
         });
     });
     test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
@@ -279,7 +280,7 @@ describe("Articles Endpoint", () => {
         .get("/api/articles/999999999/comments")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article with id 999999999 not found");
+          expect(body.msg).toBe("Not found");
         });
     });
     test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
@@ -343,7 +344,7 @@ describe("Articles Endpoint", () => {
         })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article with id 999999999 not found");
+          expect(body.msg).toBe("Not found");
         });
     });
     test("POST:400 - Responds with an error when attempting to POST a resource by an invalid ID", () => {
@@ -405,7 +406,7 @@ describe("Articles Endpoint", () => {
         .send({ inc_votes: 2 })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Article with id 999999999 not found");
+          expect(body.msg).toBe("Not found");
         });
     });
     test("PATCH:400 - Responds with an error when attempting to PATCH a resource by an invalid ID", () => {
@@ -430,7 +431,7 @@ describe("Comments Endpoint", () => {
         .delete("/api/comments/999999")
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toBe("Comment with id 999999 not found");
+          expect(body.msg).toBe("Not found");
         });
     });
     test("DELETE: 400 - Attempting to DELETE a resource referenced by an invalid ID", () => {

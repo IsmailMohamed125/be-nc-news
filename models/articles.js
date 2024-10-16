@@ -40,7 +40,7 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
     if (data.rows.length === 0) {
       return Promise.reject({
         status: 404,
-        msg: `Articles with topic ${topic} not found`,
+        msg: `Not found`,
       });
     }
     return data.rows;
@@ -49,15 +49,35 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
 
 function selectArticle(article_id) {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .query(
+      `SELECT articles.author, title, articles.article_id, articles.body,
+        topic, articles.created_at, articles.votes, article_img_url,
+        COUNT(*)::int AS comment_count
+        FROM articles
+        JOIN comments
+        on articles.article_id = comments.article_id 
+        WHERE articles.article_id = $1
+        GROUP BY articles.article_id`,
+      [article_id]
+    )
     .then((data) => {
       if (data.rows.length === 0) {
+        return db.query(`SELECT * FROM articles WHERE article_id = $1`, [
+          article_id,
+        ]);
+      } else {
+        return data;
+      }
+    })
+    .then(({ rows }) => {
+      if (rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: `Article with id ${article_id} not found`,
+          msg: `Not found`,
         });
       }
-      return data.rows;
+      if (!rows[0].comment_count) rows[0].comment_count = 0;
+      return rows;
     });
 }
 
