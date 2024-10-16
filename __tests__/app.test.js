@@ -187,6 +187,15 @@ describe("Articles Endpoint", () => {
             });
           });
       });
+      test("GET:200 - Responds with an empty array containing when no articles match a valid topic query parameter", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body.articles;
+            expect(articles).toEqual([]);
+          });
+      });
       test("GET:404 - Responds with an error when passed a topic not present in our database", () => {
         return request(app)
           .get("/api/articles?topic=bad_request")
