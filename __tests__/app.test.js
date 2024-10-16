@@ -114,7 +114,7 @@ describe("Articles Endpoint", () => {
         });
     });
     describe("Sorting", () => {
-      describe.only("Sort by category", () => {
+      describe("Sort by category", () => {
         test("GET:200 - Responds with an array containing array objects sorted by the query parameter defaualting to DESC order", () => {
           return request(app)
             .get("/api/articles?sort_by=votes")
@@ -132,6 +132,17 @@ describe("Articles Endpoint", () => {
             .expect(400)
             .then(({ body }) => {
               expect(body.msg).toBe("Invalid sort_by column");
+            });
+        });
+      });
+      describe("Order", () => {
+        test("GET:200 - Responds with an array containing array objects sorted by the defaualt column (created_at) in the order direction provided", () => {
+          return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              const articles = body.articles;
+              expect(articles).toBeSortedBy("created_at");
             });
         });
       });
