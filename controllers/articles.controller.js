@@ -5,6 +5,7 @@ const {
   insertComment,
   updateArticle,
 } = require("../models/articles");
+const { selectUser } = require("../models/users");
 
 const getAllArticles = (req, res, next) => {
   const { sort_by, order, topic } = req.query;
@@ -46,6 +47,7 @@ const postCommentOnArticle = (req, res, next) => {
   const promises = [
     selectArticle(article_id),
     insertComment(newComment, article_id),
+    selectUser(newComment.username),
   ];
 
   Promise.all(promises)

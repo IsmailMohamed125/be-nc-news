@@ -315,6 +315,18 @@ describe("Articles Endpoint", () => {
           expect(msg).toBe("Bad request");
         });
     });
+    test("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of the username field is invalid", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "bad_user",
+          body: "test",
+        })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
     test("POST:404 - Responds with an error when attempting to POST a resource by a valid ID that does not exist in the database", () => {
       return request(app)
         .post("/api/articles/999999999/comments")
@@ -443,6 +455,29 @@ describe("Users Endpoint", () => {
               avatar_url: expect.any(String),
             });
           });
+        });
+    });
+  });
+  describe("GET:/api/users/:username", () => {
+    test("GET:200 - Responds with a correctly formated user object with username provided", () => {
+      return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body: { user } }) => {
+          expect(user[0]).toMatchObject({
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          });
+        });
+    });
+    test("GET:404 - Responds with an error when attempting to GET a user by a username that does not exist", () => {
+      return request(app)
+        .get("/api/users/fake_user")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
   });
