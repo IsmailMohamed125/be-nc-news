@@ -145,6 +145,14 @@ describe("Articles Endpoint", () => {
               expect(articles).toBeSortedBy("created_at");
             });
         });
+        test("GET:400 - Responds with an error message when trying to sort with an invalid query parameter", () => {
+          return request(app)
+            .get("/api/articles?order=bad_request")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("Invalid order direction");
+            });
+        });
       });
     });
   });
