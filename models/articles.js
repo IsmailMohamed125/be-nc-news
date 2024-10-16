@@ -37,15 +37,24 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
 
   queryString += ` GROUP BY articles.article_id ORDER BY %I %s;`;
 
-  return db.query(format(queryString, ...queryVals)).then((data) => {
-    if (data.rows.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: `Not found`,
-      });
-    }
-    return data.rows;
-  });
+  return db
+    .query(format(queryString, ...queryVals))
+    .then((data) => {
+      if (data.rows.length === 0 && topic) {
+        return db.query(`SELECT slug FROM topics WHERE slug = $1`, [topic]);
+      }
+      return data;
+    })
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Not found`,
+        });
+      }
+      if (rows[0].slug) return [];
+      return rows;
+    });
 }
 
 function selectArticle(article_id) {
