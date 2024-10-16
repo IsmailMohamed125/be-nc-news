@@ -27,16 +27,17 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
         FROM articles
         JOIN comments
         on articles.article_id = comments.article_id`;
-  let queryVals = [];
+  const direction = order.toUpperCase();
+  let queryVals = [sort_by, direction];
 
   if (topic) {
-    queryString += ` WHERE topic = $1`;
-    queryVals.push(topic);
+    queryString += ` WHERE topic = %L`;
+    queryVals.unshift(topic);
   }
 
-  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order.toUpperCase()};`;
+  queryString += ` GROUP BY articles.article_id ORDER BY %I %s;`;
 
-  return db.query(queryString, queryVals).then((data) => {
+  return db.query(format(queryString, ...queryVals)).then((data) => {
     if (data.rows.length === 0) {
       return Promise.reject({
         status: 404,
@@ -65,9 +66,8 @@ function selectArticle(article_id) {
         return db.query(`SELECT * FROM articles WHERE article_id = $1`, [
           article_id,
         ]);
-      } else {
-        return data;
       }
+      return data;
     })
     .then(({ rows }) => {
       if (rows.length === 0) {
