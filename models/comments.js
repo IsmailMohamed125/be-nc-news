@@ -9,7 +9,7 @@ function deleteComment(comment_id) {
       if (data.rows.length === 0) {
         return Promise.reject({
           status: 404,
-          msg: `Comment with id ${comment_id} not found`,
+          msg: `Not found`,
         });
       }
       return data.rows;
