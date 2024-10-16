@@ -113,6 +113,57 @@ describe("Articles Endpoint", () => {
           });
         });
     });
+    describe("Sorting", () => {
+      describe("Sort by category", () => {
+        test("GET:200 - Responds with an array containing array objects sorted by the query parameter defaualting to DESC order", () => {
+          return request(app)
+            .get("/api/articles?sort_by=votes")
+            .expect(200)
+            .then(({ body }) => {
+              const articles = body.articles;
+              expect(articles).toBeSortedBy("votes", {
+                descending: true,
+              });
+            });
+        });
+        test("GET:400 - Responds with an error message when trying to sort with an invalid query parameter", () => {
+          return request(app)
+            .get("/api/articles?sort_by=bad_query")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("Invalid sort_by column");
+            });
+        });
+      });
+      describe("Order", () => {
+        test("GET:200 - Responds with an array containing array objects sorted by the defaualt column (created_at) in the order direction provided", () => {
+          return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              const articles = body.articles;
+              expect(articles).toBeSortedBy("created_at");
+            });
+        });
+        test("GET:400 - Responds with an error message when trying to sort with an invalid query parameter", () => {
+          return request(app)
+            .get("/api/articles?order=bad_request")
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("Invalid order direction");
+            });
+        });
+      });
+      test("GET:200 - Responds with an array containing array objects sorted by the query parameter in the order direction", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body.articles;
+            expect(articles).toBeSortedBy("votes");
+          });
+      });
+    });
   });
   describe("GET:/api/articles/:article_id", () => {
     test("GET:200 - Responds with an array containing correctly formated article object", () => {
