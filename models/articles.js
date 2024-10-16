@@ -2,7 +2,7 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const { prepareNewComment } = require("../db/seeds/utils");
 
-function selectArticles(sort_by = "created_at", order = "DESC") {
+function selectArticles(sort_by = "created_at", order = "DESC", topic) {
   const validColumns = [
     "title",
     "article_id",
@@ -21,19 +21,30 @@ function selectArticles(sort_by = "created_at", order = "DESC") {
     return Promise.reject({ status: 400, msg: "Invalid order direction" });
   }
 
-  return db
-    .query(
-      `SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, 
-          COUNT(*)::int AS comment_count
-          FROM articles
-          JOIN comments
-          on articles.article_id = comments.article_id 
-          GROUP BY articles.article_id
-          ORDER BY articles.${sort_by} ${order.toUpperCase()}`
-    )
-    .then((data) => {
-      return data.rows;
-    });
+  let queryString = `SELECT articles.author, title, articles.article_id, 
+        topic, articles.created_at, articles.votes, article_img_url, 
+        COUNT(*)::int AS comment_count
+        FROM articles
+        JOIN comments
+        on articles.article_id = comments.article_id`;
+  let queryVals = [];
+
+  if (topic) {
+    queryString += ` WHERE topic = $1`;
+    queryVals.push(topic);
+  }
+
+  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order.toUpperCase()};`;
+
+  return db.query(queryString, queryVals).then((data) => {
+    if (data.rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: `Articles with topic ${topic} not found`,
+      });
+    }
+    return data.rows;
+  });
 }
 
 function selectArticle(article_id) {
