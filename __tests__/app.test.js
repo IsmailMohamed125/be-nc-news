@@ -460,5 +460,13 @@ describe("Users Endpoint", () => {
           });
         });
     });
+    test("GET:404 - Responds with an error when attempting to GET a user by a username that does not exist", () => {
+      return request(app)
+        .get("/api/users/fake_user")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
   });
 });
