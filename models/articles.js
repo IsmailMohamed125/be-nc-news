@@ -1,6 +1,5 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const { prepareNewComment } = require("../db/seeds/utils");
 
 function selectArticles(sort_by = "created_at", order = "DESC", topic) {
   const validColumns = [
@@ -27,24 +26,34 @@ function selectArticles(sort_by = "created_at", order = "DESC", topic) {
         FROM articles
         JOIN comments
         on articles.article_id = comments.article_id`;
-  let queryVals = [];
+  const direction = order.toUpperCase();
+  let queryVals = [sort_by, direction];
 
   if (topic) {
-    queryString += ` WHERE topic = $1`;
-    queryVals.push(topic);
+    queryString += ` WHERE topic = %L`;
+    queryVals.unshift(topic);
   }
 
-  queryString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order.toUpperCase()};`;
+  queryString += ` GROUP BY articles.article_id ORDER BY %I %s;`;
 
-  return db.query(queryString, queryVals).then((data) => {
-    if (data.rows.length === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: `Not found`,
-      });
-    }
-    return data.rows;
-  });
+  return db
+    .query(format(queryString, ...queryVals))
+    .then((data) => {
+      if (data.rows.length === 0 && topic) {
+        return db.query(`SELECT slug FROM topics WHERE slug = $1`, [topic]);
+      }
+      return data;
+    })
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Not found`,
+        });
+      }
+      if (rows[0].slug) return [];
+      return rows;
+    });
 }
 
 function selectArticle(article_id) {
@@ -65,9 +74,8 @@ function selectArticle(article_id) {
         return db.query(`SELECT * FROM articles WHERE article_id = $1`, [
           article_id,
         ]);
-      } else {
-        return data;
       }
+      return data;
     })
     .then(({ rows }) => {
       if (rows.length === 0) {
@@ -92,21 +100,21 @@ function selectComments(article_id) {
         ORDER BY comments.created_at DESC`,
       [article_id]
     )
-    .then((data) => {
-      return data.rows;
+    .then(({ rows }) => {
+      return rows;
     });
 }
 
 function insertComment(newComment, article_id) {
-  const formattedComment = prepareNewComment(newComment, article_id);
-  const queryString = format(
-    `INSERT INTO comments (author, body, article_id)
-    VALUES %L RETURNING *;`,
-    formattedComment
-  );
-  return db.query(queryString).then((data) => {
-    return data.rows;
-  });
+  return db
+    .query(
+      `INSERT INTO comments (author, body, article_id)
+       VALUES ($1, $2, $3) RETURNING *;`,
+      [newComment.username, newComment.body, article_id]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
 }
 
 function updateArticle(votes, article_id) {
@@ -115,8 +123,8 @@ function updateArticle(votes, article_id) {
       `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,
       [votes, article_id]
     )
-    .then((data) => {
-      return data.rows;
+    .then(({ rows }) => {
+      return rows;
     });
 }
 

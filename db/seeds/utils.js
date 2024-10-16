@@ -1,4 +1,3 @@
-const { body } = require("express-validator");
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };
   return { created_at: new Date(created_at), ...otherProperties };
@@ -20,22 +19,4 @@ exports.formatComments = (comments, idLookup) => {
       ...this.convertTimestampToDate(restOfComment),
     };
   });
-};
-
-exports.validatePost = [
-  body("username")
-    .notEmpty()
-    .withMessage("Bad request")
-    .isString()
-    .withMessage("Bad request"),
-  body("body")
-    .notEmpty()
-    .withMessage("Bad request")
-    .isString()
-    .withMessage("Bad request"),
-];
-
-exports.prepareNewComment = (comment, id) => {
-  const { username, body } = comment;
-  return [[username, body, id]];
 };

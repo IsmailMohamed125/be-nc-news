@@ -6,7 +6,6 @@ const {
   postCommentOnArticle,
   patchArticleById,
 } = require("../controllers/articles.controller");
-const { validatePost } = require("../db/seeds/utils");
 
 const router = express.Router();
 
@@ -17,6 +16,6 @@ router.route("/:article_id").get(getArticleById).patch(patchArticleById);
 router
   .route("/:article_id/comments")
   .get(getCommentsByArticle)
-  .post(validatePost, postCommentOnArticle);
+  .post(postCommentOnArticle);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 const db = require("../db/connection");
 
 function selectUsers() {
-  return db.query(`SELECT * FROM users`).then((data) => {
-    return data.rows;
+  return db.query(`SELECT * FROM users`).then(({ rows }) => {
+    return rows;
   });
 }
 

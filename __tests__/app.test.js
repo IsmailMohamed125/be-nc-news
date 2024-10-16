@@ -13,8 +13,8 @@ describe("All Bad Endpoints", () => {
     return request(app)
       .get("/api/BAD-ENDPOINT")
       .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Route not found!");
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Route not found!");
       });
   });
   test("POST:404 - Responds with a status of 404 and a message of 'Route not found!'", () => {
@@ -22,8 +22,8 @@ describe("All Bad Endpoints", () => {
       .post("/api/BAD-ENDPOINT")
       .send({})
       .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Route not found!");
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Route not found!");
       });
   });
   test("PATCH:404 - Responds with a status of 404 and a message of 'Route not found!'", () => {
@@ -31,16 +31,16 @@ describe("All Bad Endpoints", () => {
       .patch("/api/BAD-ENDPOINT")
       .send({})
       .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Route not found!");
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Route not found!");
       });
   });
   test("DELETE:404 - Responds with a status of 404 and a message of 'Route not found!'", () => {
     return request(app)
       .delete("/api/BAD-ENDPOINT")
       .expect(404)
-      .then(({ body }) => {
-        expect(body.msg).toBe("Route not found!");
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Route not found!");
       });
   });
 });
@@ -64,8 +64,7 @@ describe("Topics Endpoint", () => {
       return request(app)
         .get("/api/topics")
         .expect(200)
-        .then(({ body }) => {
-          const topics = body.topics;
+        .then(({ body: { topics } }) => {
           expect(topics.length).not.toBe(0);
           topics.forEach((topic) => {
             expect(topic).toMatchObject({
@@ -84,9 +83,7 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
-        .then(({ body }) => {
-          const articles = body.articles;
-
+        .then(({ body: { articles } }) => {
           expect(articles.length).not.toBe(0);
           articles.forEach((article) => {
             expect(article).toMatchObject({
@@ -106,8 +103,7 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
-        .then(({ body }) => {
-          const articles = body.articles;
+        .then(({ body: { articles } }) => {
           expect(articles).toBeSortedBy("created_at", {
             descending: true,
           });
@@ -119,8 +115,7 @@ describe("Articles Endpoint", () => {
           return request(app)
             .get("/api/articles?sort_by=votes")
             .expect(200)
-            .then(({ body }) => {
-              const articles = body.articles;
+            .then(({ body: { articles } }) => {
               expect(articles).toBeSortedBy("votes", {
                 descending: true,
               });
@@ -130,8 +125,8 @@ describe("Articles Endpoint", () => {
           return request(app)
             .get("/api/articles?sort_by=bad_query")
             .expect(400)
-            .then(({ body }) => {
-              expect(body.msg).toBe("Invalid sort_by column");
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid sort_by column");
             });
         });
       });
@@ -140,8 +135,7 @@ describe("Articles Endpoint", () => {
           return request(app)
             .get("/api/articles?order=asc")
             .expect(200)
-            .then(({ body }) => {
-              const articles = body.articles;
+            .then(({ body: { articles } }) => {
               expect(articles).toBeSortedBy("created_at");
             });
         });
@@ -149,8 +143,8 @@ describe("Articles Endpoint", () => {
           return request(app)
             .get("/api/articles?order=bad_request")
             .expect(400)
-            .then(({ body }) => {
-              expect(body.msg).toBe("Invalid order direction");
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("Invalid order direction");
             });
         });
       });
@@ -158,8 +152,7 @@ describe("Articles Endpoint", () => {
         return request(app)
           .get("/api/articles?sort_by=votes&order=asc")
           .expect(200)
-          .then(({ body }) => {
-            const articles = body.articles;
+          .then(({ body: { articles } }) => {
             expect(articles).toBeSortedBy("votes");
           });
       });
@@ -169,9 +162,7 @@ describe("Articles Endpoint", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
           .expect(200)
-          .then(({ body }) => {
-            const articles = body.articles;
-
+          .then(({ body: { articles } }) => {
             expect(articles.length).not.toBe(0);
             articles.forEach((article) => {
               expect(article).toMatchObject({
@@ -187,12 +178,20 @@ describe("Articles Endpoint", () => {
             });
           });
       });
+      test("GET:200 - Responds with an empty array containing when no articles match a valid topic query parameter", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toEqual([]);
+          });
+      });
       test("GET:404 - Responds with an error when passed a topic not present in our database", () => {
         return request(app)
           .get("/api/articles?topic=bad_request")
           .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not found");
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found");
           });
       });
     });
@@ -202,10 +201,8 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/1")
         .expect(200)
-        .then(({ body }) => {
-          const article = body.article[0];
-
-          expect(article).toMatchObject({
+        .then(({ body: { article } }) => {
+          expect(article[0]).toMatchObject({
             article_id: 1,
             title: expect.any(String),
             topic: expect.any(String),
@@ -222,16 +219,16 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/999999999")
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
     test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
       return request(app)
         .get("/api/articles/notAnId")
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
   });
@@ -240,8 +237,7 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/1/comments")
         .expect(200)
-        .then(({ body }) => {
-          const comments = body.comments;
+        .then(({ body: { comments } }) => {
           expect(comments.length).not.toBe(0);
           comments.forEach((comment) => {
             expect(comment).toMatchObject({
@@ -259,8 +255,7 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/1/comments")
         .expect(200)
-        .then(({ body }) => {
-          const comments = body.comments;
+        .then(({ body: { comments } }) => {
           expect(comments).toBeSortedBy("created_at", {
             descending: true,
           });
@@ -270,8 +265,7 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/7/comments")
         .expect(200)
-        .then(({ body }) => {
-          const comments = body.comments;
+        .then(({ body: { comments } }) => {
           expect(comments).toEqual([]);
         });
     });
@@ -279,16 +273,16 @@ describe("Articles Endpoint", () => {
       return request(app)
         .get("/api/articles/999999999/comments")
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
     test("GET:400 - Responds with an error when attempting to GET a resource by an invalid ID", () => {
       return request(app)
         .get("/api/articles/notAnId/comments")
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
   });
@@ -301,9 +295,8 @@ describe("Articles Endpoint", () => {
           body: "This is a test comment",
         })
         .expect(201)
-        .then(({ body }) => {
-          const comment = body.comment[0];
-          expect(comment).toMatchObject({
+        .then(({ body: { comment } }) => {
+          expect(comment[0]).toMatchObject({
             comment_id: expect.any(Number),
             author: "butter_bridge",
             created_at: expect.any(String),
@@ -318,21 +311,8 @@ describe("Articles Endpoint", () => {
         .post("/api/articles/1/comments")
         .send({})
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
-        });
-    });
-    test("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of a field is invalid", () => {
-      // Comment for NC staff members: Since PSQL is doing type coercion even if i send a non-string this test will fail without the use of an external library. Also, the other way i could check is converting the string values i get from req.body to another type in an if statement like if(Number(usermame)) then reject there but I would have to check mutiple data types. Please suggest another way if you can but for now i will use a library called express-validator I will only use it for this case.
-      return request(app)
-        .post("/api/articles/1/comments")
-        .send({
-          username: "butter_bridge",
-          body: 9,
-        })
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
     test("POST:404 - Responds with an error when attempting to POST a resource by a valid ID that does not exist in the database", () => {
@@ -343,8 +323,8 @@ describe("Articles Endpoint", () => {
           body: "This is a test comment",
         })
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
     test("POST:400 - Responds with an error when attempting to POST a resource by an invalid ID", () => {
@@ -355,8 +335,8 @@ describe("Articles Endpoint", () => {
           body: "This is a test comment",
         })
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
   });
@@ -366,10 +346,8 @@ describe("Articles Endpoint", () => {
         .patch("/api/articles/1")
         .send({ inc_votes: 2 })
         .expect(200)
-        .then(({ body }) => {
-          const article = body.article[0];
-
-          expect(article).toMatchObject({
+        .then(({ body: { article } }) => {
+          expect(article[0]).toMatchObject({
             article_id: 1,
             title: "Living in the shadow of a great man",
             topic: "mitch",
@@ -387,8 +365,8 @@ describe("Articles Endpoint", () => {
         .patch("/api/articles/1")
         .send({})
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
     test("PATCH:400 - Responds with an error when attempting to make a POST request with valid fields but the value of a field is invalid", () => {
@@ -396,8 +374,8 @@ describe("Articles Endpoint", () => {
         .patch("/api/articles/1")
         .send({ inc_votes: "notAnINT" })
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
     test("PATCH:404 - Responds with an error when attempting to PATCH a resource by a valid ID that does not exist in the database", () => {
@@ -405,8 +383,8 @@ describe("Articles Endpoint", () => {
         .patch("/api/articles/999999999")
         .send({ inc_votes: 2 })
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
     test("PATCH:400 - Responds with an error when attempting to PATCH a resource by an invalid ID", () => {
@@ -414,8 +392,8 @@ describe("Articles Endpoint", () => {
         .patch("/api/articles/notAnId")
         .send({ inc_votes: 2 })
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
   });
@@ -424,22 +402,27 @@ describe("Articles Endpoint", () => {
 describe("Comments Endpoint", () => {
   describe("DELETE:/api/comments/:comment_id", () => {
     test("DELETE:204 - Responds with no content", () => {
-      return request(app).delete("/api/comments/1").expect(204);
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body).toEqual({});
+        });
     });
     test("DELETE: 404 - Attempting to DELETE a resource that does not exist", () => {
       return request(app)
         .delete("/api/comments/999999")
         .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Not found");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
         });
     });
     test("DELETE: 400 - Attempting to DELETE a resource referenced by an invalid ID", () => {
       return request(app)
         .delete("/api/comments/notAnId")
         .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Bad request");
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
         });
     });
   });
@@ -451,9 +434,8 @@ describe("Users Endpoint", () => {
       return request(app)
         .get("/api/users")
         .expect(200)
-        .then(({ body }) => {
-          const users = body.users;
-          expect(users.length).not.toBe(0);
+        .then(({ body: { users } }) => {
+          expect(users.length).toBe(4);
           users.forEach((user) => {
             expect(user).toMatchObject({
               username: expect.any(String),
