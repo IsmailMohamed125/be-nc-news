@@ -103,21 +103,3 @@ describe("formatComments", () => {
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
   });
 });
-
-describe("prepareNewComment", () => {
-  test("returns a single element nested array", () => {
-    const comment = {};
-    const id = 9;
-    const formattedComment = prepareNewComment(comment, id);
-    formattedComment[0].forEach((el) => {
-      const isArray = Array.isArray(el);
-      expect(isArray).toBe(false);
-    });
-  });
-  test("returns a nested array with that nested array having a length of 3", () => {
-    const comment = { username: "", body: "" };
-    const id = 9;
-    const formattedComment = prepareNewComment(comment, id);
-    expect(formattedComment[0]).toHaveLength(3);
-  });
-});

@@ -5,7 +5,6 @@ const {
   insertComment,
   updateArticle,
 } = require("../models/articles");
-const { validationResult } = require("express-validator");
 
 const getAllArticles = (req, res, next) => {
   const { sort_by, order, topic } = req.query;
@@ -42,11 +41,6 @@ const getCommentsByArticle = (req, res, next) => {
 };
 
 const postCommentOnArticle = (req, res, next) => {
-  const { errors } = validationResult(req);
-  if (errors.length !== 0) {
-    next({ status: 400, msg: errors[0].msg });
-    return;
-  }
   const { article_id } = req.params;
   const newComment = req.body;
   const promises = [
