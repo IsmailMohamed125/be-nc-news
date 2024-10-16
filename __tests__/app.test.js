@@ -164,6 +164,30 @@ describe("Articles Endpoint", () => {
           });
       });
     });
+    describe("Filtering by topic", () => {
+      test("GET:200 - Responds with an array containing correctly formated article objects with all objects having a topic matching the query parameter", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const articles = body.articles;
+
+            expect(articles.length).not.toBe(0);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: "mitch",
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(Number),
+              });
+            });
+          });
+      });
+    });
   });
   describe("GET:/api/articles/:article_id", () => {
     test("GET:200 - Responds with an array containing correctly formated article object", () => {
