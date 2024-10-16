@@ -315,6 +315,18 @@ describe("Articles Endpoint", () => {
           expect(msg).toBe("Bad request");
         });
     });
+    test.only("POST:400 - Responds with an error when attempting to make a POST request with valid fields but the value of the username field is invalid", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "bad_user",
+          body: "test",
+        })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
     test("POST:404 - Responds with an error when attempting to POST a resource by a valid ID that does not exist in the database", () => {
       return request(app)
         .post("/api/articles/999999999/comments")
