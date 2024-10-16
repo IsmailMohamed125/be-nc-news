@@ -8,7 +8,8 @@ const {
 const { validationResult } = require("express-validator");
 
 const getAllArticles = (req, res, next) => {
-  selectArticles()
+  const { sort_by } = req.query;
+  selectArticles(sort_by)
     .then((articles) => {
       res.status(200).send({ articles });
     })
