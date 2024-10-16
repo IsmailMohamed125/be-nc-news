@@ -2,7 +2,7 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const { prepareNewComment } = require("../db/seeds/utils");
 
-function selectArticles(sort_by = "created_at") {
+function selectArticles(sort_by = "created_at", order = "DESC") {
   const validColumns = [
     "title",
     "article_id",
@@ -16,6 +16,10 @@ function selectArticles(sort_by = "created_at") {
   if (!validColumns.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort_by column" });
   }
+  const validOrders = ["ASC", "DESC"];
+  if (!validOrders.includes(order.toUpperCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order direction" });
+  }
 
   return db
     .query(
@@ -25,7 +29,7 @@ function selectArticles(sort_by = "created_at") {
           JOIN comments
           on articles.article_id = comments.article_id 
           GROUP BY articles.article_id
-          ORDER BY articles.${sort_by} DESC`
+          ORDER BY articles.${sort_by} ${order.toUpperCase()}`
     )
     .then((data) => {
       return data.rows;
