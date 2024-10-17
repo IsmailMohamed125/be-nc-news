@@ -75,6 +75,38 @@ describe("Topics Endpoint", () => {
         });
     });
   });
+  describe("POST:/api/topics", () => {
+    test("POST:201 - Responds with an array containing correctly formated article object", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ description: "Wants to be in database", slug: "ismail" })
+        .expect(201)
+        .then(({ body: { topic } }) => {
+          expect(topic[0]).toMatchObject({
+            slug: "ismail",
+            description: "Wants to be in database",
+          });
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to POST request with a body that does not contain the correct fields", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({})
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to make a POST request with a invalid slug field", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ description: "Wants to be in database" })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
 });
 
 describe("Articles Endpoint", () => {
@@ -95,6 +127,7 @@ describe("Articles Endpoint", () => {
               votes: expect.any(Number),
               article_img_url: expect.any(String),
               comment_count: expect.any(Number),
+              total_count: expect.any(Number),
             });
           });
         });
@@ -174,6 +207,7 @@ describe("Articles Endpoint", () => {
                 votes: expect.any(Number),
                 article_img_url: expect.any(String),
                 comment_count: expect.any(Number),
+                total_count: expect.any(Number),
               });
             });
           });
@@ -194,6 +228,163 @@ describe("Articles Endpoint", () => {
             expect(msg).toBe("Not found");
           });
       });
+    });
+    describe("Pagination", () => {
+      test("GET:200 - Responds with an array containing correctly formated article objects with a total count defaultly limited to 10 article objects when no limit provided", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBeLessThanOrEqual(10);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(Number),
+                total_count: expect.any(Number),
+              });
+            });
+          });
+      });
+      test("GET:200 - Responds with an array containing article objects limited by the limit query provided", () => {
+        return request(app)
+          .get("/api/articles?limit=2")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBeLessThanOrEqual(2);
+          });
+      });
+      test("GET:200 - Responds with an array containing article objects limited by the limit query provided and offset by the page query", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id&order=asc&limit=2&p=2") // USE SORTING OF ARTICLE ID TO CHECK FOR THIS //FIRST TWO ARTICLE IDS ARE 1, 3
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBeLessThanOrEqual(2);
+            articles.forEach((article) => {
+              expect(article.article_id).toBeGreaterThan(3);
+            });
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with an invalid limit", () => {
+        return request(app)
+          .get("/api/articles?limit=notAnNum")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with an invalid page", () => {
+        return request(app)
+          .get("/api/articles?limit=2&p=notAnNum")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with a negative limit", () => {
+        return request(app)
+          .get("/api/articles?limit=-2")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with a negative page", () => {
+        return request(app)
+          .get("/api/articles?limit=2&p=-2")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:404 - Responds with an error when attempting to GET a resource with an valid page query but greater than total results", () => {
+        return request(app)
+          .get("/api/articles?limit=2&p=10")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found");
+          });
+      });
+    });
+  });
+  describe("POST:/api/articles", () => {
+    test("POST:201 - Responds with an array containing correctly formated article object", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "Test title",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "Test body",
+        })
+        .expect(201)
+        .then(({ body: { article } }) => {
+          expect(article[0]).toMatchObject({
+            article_id: expect.any(Number),
+            title: "Test title",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "Test body",
+            created_at: expect.any(String),
+            votes: 0,
+            article_img_url: expect.any(String),
+          });
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to POST request with a body that does not contain the correct fields", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({})
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    test("POST:400 - Responds with an error when attempting to make a POST request with valid fields but an invalid author field", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          title: "Test title",
+          topic: "mitch",
+          body: "Test body",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    test("POST:404 - Responds with an error when attempting to POST request with valid fields but the value of the author field does not exist in the database", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "bad_user",
+          title: "Test title",
+          topic: "mitch",
+          body: "Test body",
+        })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
+    test("POST:404 - Responds with an error when attempting to POST request with valid fields but the value of the topic field does not exist in the database", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({
+          author: "butter_bridge",
+          title: "Test title",
+          topic: "test",
+          body: "Test body",
+        })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
     });
   });
   describe("GET:/api/articles/:article_id", () => {
@@ -247,6 +438,7 @@ describe("Articles Endpoint", () => {
               votes: expect.any(Number),
               body: expect.any(String),
               article_id: expect.any(Number),
+              total_count: expect.any(Number),
             });
           });
         });
@@ -284,6 +476,89 @@ describe("Articles Endpoint", () => {
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad request");
         });
+    });
+    describe("Pagination", () => {
+      test("GET:200 - Responds with an array containing correctly formated comment objects with a total count defaultly limited to 10 comment objects when no limit provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBeLessThanOrEqual(10);
+            comments.forEach((comment) => {
+              expect(comment).toMatchObject({
+                comment_id: expect.any(Number),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+                total_count: expect.any(Number),
+              });
+            });
+          });
+      });
+      test("GET:200 - Responds with an array containing article objects limited by the limit query provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=2")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBeLessThanOrEqual(2);
+          });
+      });
+      test("GET:200 - Responds with an array containing article objects limited by the limit query provided and offset by the page query", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=2&p=2")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBeLessThanOrEqual(2);
+            comments.forEach((comment) => {
+              // Sorted by date in DESC order "2020-10-31T03:03:00.000Z" is last date on page 1
+              const commentDate = new Date(comment.created_at);
+              const lastPageCommentDate = new Date("2020-10-31T03:03:00.000Z");
+              expect(commentDate < lastPageCommentDate).toBe(true);
+            });
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with an invalid limit", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=notAnNum")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with an invalid page", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=2&p=notAnNum")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with a negative limit", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=-2")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:400 - Responds with an error when attempting to GET a resource with a negative page", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=2&p=-2")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request");
+          });
+      });
+      test("GET:404 - Responds with an error when attempting to GET a resource with an valid page query but greater than total results", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=2&p=10")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Not found");
+          });
+      });
     });
   });
   describe("POST:/api/articles/:article_id/comments", () => {
@@ -409,6 +684,32 @@ describe("Articles Endpoint", () => {
         });
     });
   });
+  describe("DELETE:/api/articles/:article_id", () => {
+    test("DELETE:204 - Responds with no content", () => {
+      return request(app)
+        .delete("/api/articles/4")
+        .expect(204)
+        .then(({ body }) => {
+          expect(body).toEqual({});
+        });
+    });
+    test("DELETE: 404 - Attempting to DELETE a resource that does not exist", () => {
+      return request(app)
+        .delete("/api/articles/999999")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
+    test("DELETE: 400 - Attempting to DELETE a resource referenced by an invalid ID", () => {
+      return request(app)
+        .delete("/api/articles/notAnId")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
 });
 
 describe("Comments Endpoint", () => {
@@ -432,6 +733,60 @@ describe("Comments Endpoint", () => {
     test("DELETE: 400 - Attempting to DELETE a resource referenced by an invalid ID", () => {
       return request(app)
         .delete("/api/comments/notAnId")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+  });
+  describe("PATCH:/api/comments/:comment_id", () => {
+    test("PATCH:200 - Responds with an array containing correctly formated comment object", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: 2 })
+        .expect(200)
+        .then(({ body: { comment } }) => {
+          expect(comment[0]).toMatchObject({
+            comment_id: 2,
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            votes: 16,
+            author: "butter_bridge",
+            article_id: 1,
+            created_at: "2020-10-31T03:03:00.000Z",
+          });
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource with a body that does not contain the correct fields", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({})
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to make a PATCH request with valid fields but the value of a field is invalid", () => {
+      return request(app)
+        .patch("/api/comments/2")
+        .send({ inc_votes: "notAnINT" })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request");
+        });
+    });
+    test("PATCH:404 - Responds with an error when attempting to PATCH a resource by a valid ID that does not exist in the database", () => {
+      return request(app)
+        .patch("/api/comments/999999999")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found");
+        });
+    });
+    test("PATCH:400 - Responds with an error when attempting to PATCH a resource by an invalid ID", () => {
+      return request(app)
+        .patch("/api/comments/notAnId")
+        .send({ inc_votes: 2 })
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad request");

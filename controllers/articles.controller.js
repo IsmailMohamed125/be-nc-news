@@ -4,12 +4,14 @@ const {
   selectComments,
   insertComment,
   updateArticle,
+  insertArticle,
+  deleteArticle,
 } = require("../models/articles");
 const { selectUser } = require("../models/users");
 
 const getAllArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
-  selectArticles(sort_by, order, topic)
+  const { sort_by, order, topic, limit, p } = req.query;
+  selectArticles(sort_by, order, topic, limit, p)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -31,7 +33,11 @@ const getArticleById = (req, res, next) => {
 
 const getCommentsByArticle = (req, res, next) => {
   const { article_id } = req.params;
-  const promises = [selectArticle(article_id), selectComments(article_id)];
+  const { limit, p } = req.query;
+  const promises = [
+    selectArticle(article_id),
+    selectComments(article_id, limit, p),
+  ];
   Promise.all(promises)
     .then((comments) => {
       res.status(200).send({ comments: comments[1] });
@@ -75,10 +81,36 @@ const patchArticleById = (req, res, next) => {
     });
 };
 
+const postArticle = (req, res, next) => {
+  const newArticle = req.body;
+  const promises = [selectUser(newArticle.author), insertArticle(newArticle)];
+
+  Promise.all(promises)
+    .then((article) => {
+      res.status(201).send({ article: article[1] });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticle(article_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getAllArticles,
   getArticleById,
   getCommentsByArticle,
   postCommentOnArticle,
   patchArticleById,
+  postArticle,
+  deleteArticleById,
 };
