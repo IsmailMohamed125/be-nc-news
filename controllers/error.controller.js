@@ -4,7 +4,12 @@ exports.routeErrorHandler = (req, res, next) => {
 };
 
 exports.psqlErrorHandler = (err, req, res, next) => {
-  if (err.code === "22P02" || err.code === "23502") {
+  if (
+    err.code === "22P02" ||
+    err.code === "23502" ||
+    err.code === "2201W" ||
+    err.code === "2201X"
+  ) {
     res.status(400).send({ msg: "Bad request" });
   }
   if (err.code === "23503") {
