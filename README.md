@@ -2,6 +2,8 @@
 
 The production database is hosted on [Superbase](https://supabase.com/) and the API is hosted on Render [Ismail's News API](https://ismails-news.onrender.com/api).
 
+![API Endpoints](./endpoints.png)
+
 ## Summary
 
 I've built a RESTful API to provide programmatic access to news-related application data. This project simulates the development of a real-world backend service, similar to platforms like Reddit, where users can access and interact with data through API endpoints. The API will allow clients (such as frontend applications) to retrieve and manipulate data such as articles, comments, users, and topics.
